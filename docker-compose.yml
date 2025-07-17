@@ -1,0 +1,26 @@
+version: '3.5'
+
+services:
+  postgres:
+    container_name: monitor-service-db
+    image: postgres
+    environment:
+      - POSTGRES_USER=tcc_user
+      - POSTGRES_PASSWORD=tcc_password
+      - POSTGRES_DB=monitor_service_db
+      - PGDATA=/data/postgres
+    volumes:
+      - postgres:/data/postgres
+      - ./containers/postgresql/docker-entrypoint:/docker-entrypoint-initdb.d/
+    ports:
+      - "5434:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
