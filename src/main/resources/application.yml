@@ -13,18 +13,22 @@ spring:
     hikari:
       minimum-idle: 10
       maximum-pool-size: 1000
-
+  sql:
+    init:
+      mode: always
   jpa:
+    show-sql: true
     open-in-view: false
     properties:
       hibernate:
+        format_sql: true
         jdbc:
           lob:
             non_contextual_creation: true
 
-  spring:
-    flyway:
-      enabled: false
+  flyway:
+    locations: /db/commons, /db/local
+    clean-disabled: false
 
 springdoc:
   swagger-ui:
@@ -32,3 +36,6 @@ springdoc:
 
 monitor-service:
   name: MONITOR-SERVICE
+
+auth-service:
+  url: ${AUTH_SERVICE:http://localhost:8085}

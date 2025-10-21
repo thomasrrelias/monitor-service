@@ -1,25 +1,35 @@
-plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.5.3"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
-    kotlin("plugin.jpa") version "1.9.25"
-}
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val junitJupiterVersion = "5.8.1"
+plugins {
+    id("org.flywaydb.flyway") version "9.4.0"
+    id("org.springframework.boot") version "3.1.5"
+    id("io.spring.dependency-management") version "1.1.3"
+    kotlin("jvm") version "1.8.22"
+    kotlin("plugin.spring") version "1.8.22"
+    kotlin("plugin.jpa") version "1.8.22"
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    application
+}
 
 group = "br.com.springboot"
 version = "0.0.1-SNAPSHOT"
 
+val junitJupiterVersion = "5.8.1"
+val springCloudVersion = "2022.0.4"
+
+
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
     mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    }
 }
 
 dependencies {
@@ -29,10 +39,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.flywaydb:flyway-core:9.16.3") // ou versão superior
+    implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")
     runtimeOnly("org.postgresql:postgresql")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 //    runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Spring Security
@@ -43,18 +54,13 @@ dependencies {
     implementation("org.springframework.security:spring-security-cas")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        jvmTarget = "17"
     }
 }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks.getByName<Jar>("jar") {
+    enabled = false
 }
